@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>assets</title>
+  <style>
+    :root {
+      --bg: #eef1f6;
+      --card: #ffffff;
+      --border: #e3e7ef;
+      --text: #1f2430;
+      --text-dim: #8a90a3;
+      --text-mid: #5b6072;
+      --accent: #4f46e5;
+      --accent-hover: #453ed1;
+      --green: #16a34a;
+      --red: #dc2626;
+      --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      padding: 48px 24px;
+    }
+
+    .page {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 28px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .welcome {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    .welcome span {
+      color: var(--text-mid);
+      font-weight: 600;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 1px 3px rgba(20, 24, 40, 0.04), 0 8px 24px rgba(20, 24, 40, 0.03);
+      overflow: hidden;
+    }
+
+    .row-head {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      padding: 16px 24px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+    }
+
+    .row-head span:not(:first-child) {
+      text-align: right;
+    }
+
+    .asset {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .asset:last-child {
+      border-bottom: none;
+    }
+
+    .asset-main {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      align-items: center;
+      padding: 18px 24px;
+      cursor: pointer;
+    }
+
+    .asset-main:hover {
+      background: #fafbfd;
+    }
+
+    .asset-name {
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .caret {
+      color: var(--text-dim);
+      font-size: 10px;
+      transition: transform 0.2s ease;
+      display: inline-block;
+    }
+
+    .asset.open .caret {
+      transform: rotate(90deg);
+      color: var(--accent);
+    }
+
+    .asset-main span:not(.asset-name) {
+      text-align: right;
+      font-size: 14px;
+      color: var(--text-mid);
+    }
+
+    .change {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .change.neg {
+      color: var(--red);
+    }
+
+    .history {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+      background: #f8f9fc;
+    }
+
+    .asset.open .history {
+      max-height: 500px;
+    }
+
+    .history-inner {
+      padding: 4px 24px 14px 24px;
+    }
+
+    .history-head {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      color: var(--text-dim);
+      padding: 10px 8px 8px 32px;
+      text-transform: uppercase;
+    }
+
+    .history-head span:not(:first-child) {
+      text-align: right;
+    }
+
+    .history-row {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      font-size: 13px;
+      color: var(--text-mid);
+      padding: 9px 8px 9px 32px;
+      border-top: 1px solid var(--border);
+    }
+
+    .history-row span:not(:first-child) {
+      text-align: right;
+    }
+
+    .history-row .change {
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button,
+    .btn {
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 13px 22px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      border: 1px solid var(--border);
+      color: var(--text-mid);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .btn-secondary:hover {
+      border-color: #c7cbd8;
+      color: var(--text);
+    }
+
+    .empty {
+      padding: 40px 22px;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    /* modal de compra */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 24, 40, 0.35);
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 20px 50px rgba(20, 24, 40, 0.2);
+    }
+
+    .modal h2 {
+      margin: 0 0 20px 0;
+      font-size: 19px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-mid);
+    }
+
+    .field select,
+    .field input {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--text);
+      background: #fff;
+    }
+
+    .field select:focus,
+    .field input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="page">
+
+    <div class="topbar">
+      <div class="logo">assets</div>
+      <div class="welcome">welcome, <span>{{ user.username }}</span></div>
+    </div>
+
+    <div class="card">
+      <div class="row-head">
+        <span>name</span>
+        <span>quantity</span>
+        <span>unit value</span>
+        <span>change</span>
+      </div>
+
+      {% if owned_assets.is_empty() %}
+      <div class="empty">no assets yet — register a purchase to get started</div>
+      {% else %}
+      {% for asset in owned_assets %}
+      <div class="asset">
+        <div class="asset-main" onclick="toggleAsset(this)">
+          <div class="asset-name"><span class="caret">▶</span>{{ asset.name }}</div>
+          <span>{{ asset.quantity_owned }}</span>
+          <span>$ {{ asset.unit_value }}</span>
+          <span class="{% if asset.value_delta < 0.0 %}change neg{% else %}change{% endif %}">
+            {% if asset.value_delta >= 0.0 %}+{% endif %}{{ asset.value_delta }}
+          </span>
+        </div>
+        <div class="history">
+          <div class="history-inner">
+            <div class="history-head">
+              <span>purchase date</span>
+              <span>quantity</span>
+              <span>bought for</span>
+              <span>change</span>
+            </div>
+            {% for purchase in asset.purchase_history.0 %}
+            <div class="history-row">
+              <span>{{ purchase.bought_at }}</span>
+              <span>{{ purchase.quantity_bought }}</span>
+              <span>$ {{ purchase.bought_for }}</span>
+              <span class="{% if purchase.value_delta < 0.0 %}change neg{% else %}change{% endif %}">
+                {% if purchase.value_delta >= 0.0 %}+{% endif %}{{ purchase.value_delta }}
+              </span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" onclick="openModal()">register purchase</button>
+      <a class="btn-secondary" href="/logout">logout</a>
+    </div>
+
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <h2>register purchase</h2>
+      <form method="post" action="/assets">
+        <div class="field">
+          <label for="asset_id">asset</label>
+          <select id="asset_id" name="asset_id" required>
+            {% for a in available_assets %}
+            <option value="{{ a.id }}">{{ a.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="quantity">quantity</label>
+          <input type="number" step="any" min="0" id="quantity" name="quantity" placeholder="0.00" required>
+        </div>
+        <div class="field">
+          <label for="unit_value">bought for (unit price)</label>
+          <input type="number" step="any" min="0" id="unit_value" name="unit_value" placeholder="0.00" required>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal()">cancel</button>
+          <button type="submit" class="btn-primary">confirm</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function toggleAsset(el) {
+      el.closest('.asset').classList.toggle('open');
+    }
+    function openModal() { document.getElementById('overlay').classList.add('open'); }
+    function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+  </script>
+
+</body>
+
+</html>
