@@ -14,9 +14,12 @@ pub struct CoinGeckoClient {
 
 impl CoinGeckoClient {
     pub fn new() -> Self {
-        Self {
-            http: reqwest::Client::new(),
-        }
+        let http = reqwest::Client::builder()
+            .user_agent("wallet-live/0.1 (+https://github.com/rafaellima1412/wallet-live)")
+            .build()
+            .expect("o client HTTP deveria ser construído com configurações válidas");
+
+        Self { http }
     }
 
     pub async fn fetch_prices(
