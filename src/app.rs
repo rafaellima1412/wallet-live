@@ -1,4 +1,7 @@
-use crate::router::{self, api};
+use crate::{
+    quote::CoinGeckoClient,
+    router::{self, api},
+};
 use axum::Router;
 use sqlx::PgPool;
 
@@ -11,6 +14,7 @@ use tracing_subscriber::{
 #[derive(Clone)] //para a struct
 pub struct AppState {
     pub db: PgPool,
+    pub quotes: CoinGeckoClient,
 }
 
 impl AppState {
@@ -18,7 +22,9 @@ impl AppState {
         // usar ele o color para tudo que start na a aplicação para exibir logo algo
         let database_url = std::env::var("DATABASE_URL")?;
         let db = PgPool::connect(&database_url).await?;
-        Ok(Self { db })
+        sqlx::migrate!("./migrations").run(&db).await?;
+        let quotes = CoinGeckoClient::new();
+        Ok(Self { db, quotes })
     }
 }
 pub struct App;

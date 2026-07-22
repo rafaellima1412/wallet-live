@@ -2,7 +2,7 @@ use askama::Template;
 use axum::{
     Form, Router,
     response::{Html, IntoResponse, Redirect},
-    routing::get,
+    routing::{get, post},
 };
 use axum_extra::extract::{CookieJar, cookie::Cookie};
 use serde::Deserialize;
@@ -13,15 +13,17 @@ use crate::{
     auth::user::{UnauthenticatedUser, User},
     error::AppError,
     model::{Asset, OwnedAsset},
+    quote::CoinGeckoClient,
     repository::Repository,
 };
-
+const QUOTES_VS_CURRENCY: &str = "usd";
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/", get(index))
         .route("/login", get(login_page).post(login))
         .route("/logout", get(logout))
         .route("/assets", get(assets).post(purchase_asset))
+        .route("/assets/refresh-prices", post(refresh_prices))
 }
 #[derive(Template)]
 #[template(path = "assets.html")]
@@ -62,6 +64,32 @@ pub async fn purchase_asset(
             request.unit_value,
         )
         .await?;
+    Ok(Redirect::to("/assets"))
+}
+#[tracing::instrument(skip_all)]
+pub async fn refresh_prices(
+    repository: Repository,
+    quotes: CoinGeckoClient,
+    _user: User,
+) -> Result<Redirect, AppError> {
+    let assets_to_refresh = repository.list_assets_with_coingecko_id().await?;
+
+    let ids: Vec<String> = assets_to_refresh
+        .iter()
+        .filter_map(|asset| asset.coingecko_id.clone())
+        .collect();
+
+    let prices = quotes.fetch_prices(&ids, QUOTES_VS_CURRENCY).await?;
+
+    for asset in assets_to_refresh {
+        let Some(coingecko_id) = asset.coingecko_id.as_deref() else {
+            continue;
+        };
+        if let Some(&price) = prices.get(coingecko_id) {
+            repository.update_asset_price(asset.id, price).await?;
+        }
+    }
+
     Ok(Redirect::to("/assets"))
 }
 

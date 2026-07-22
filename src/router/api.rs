@@ -22,6 +22,8 @@ async fn list_assets(repository: Repository) -> Result<Json<Vec<Asset>>, AppErro
 pub struct CreateAssetRequest {
     pub name: String,
     pub unit_value: f64,
+    #[serde(default)]
+    pub coingecko_id: Option<String>,
 }
 
 #[tracing::instrument(skip_all)] //--adiciona instrumentação para logs/tracing.
@@ -31,7 +33,7 @@ async fn create_assets(
     Json(request): Json<CreateAssetRequest>,
 ) -> Result<Json<Asset>, AppError> {
     let new_asset = repository
-        .create_asset(request.name, request.unit_value)
+        .create_asset(request.name, request.unit_value, None)
         .await?;
 
     Ok(Json(new_asset))
@@ -41,6 +43,8 @@ struct UpdateAssetRequest {
     id: i64,
     name: Option<String>,
     unit_value: Option<f64>,
+    #[serde(default)]
+    coingecko_id: Option<String>,
 }
 #[tracing::instrument(skip_all)] //--adiciona instrumentação para logs/tracing.
 async fn update_asset(
@@ -49,7 +53,12 @@ async fn update_asset(
     Json(request): Json<UpdateAssetRequest>,
 ) -> Result<Json<Asset>, AppError> {
     match repository
-        .update_asset(request.id, request.name, request.unit_value)
+        .update_asset(
+            request.id,
+            request.name,
+            request.unit_value,
+            request.coingecko_id,
+        )
         .await?
     {
         Some(update_asset) => Ok(Json(update_asset)),

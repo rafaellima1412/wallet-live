@@ -7,6 +7,7 @@ pub struct Asset {
     pub id: i64,
     pub name: String,
     pub unit_value: f64,
+    pub coingecko_id: Option<String>,
 }
 
 pub struct UserRecord {

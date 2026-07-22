@@ -20,6 +20,12 @@ pub enum AppError {
     Template(#[from] askama::Error),
     #[error("transparent")]
     JwT(#[from] jwt_simple::Error),
+    #[error("Failed to fetch price data from external provider")]
+    Http(#[from] reqwest::Error),
+    #[error(
+        "CoinGecko respondeu com status {0} — provavelmente limite de requisições (rate limit) atingido"
+    )]
+    CoinGeckoRequestFailed(u16),
 }
 #[derive(Serialize)]
 pub struct ErrorResponse {
@@ -38,6 +44,7 @@ impl IntoResponse for AppError {
             Self::Database(_) | Self::Template(_) | Self::JwT(_) => {
                 StatusCode::INTERNAL_SERVER_ERROR
             }
+            Self::Http(_) | Self::CoinGeckoRequestFailed(_) => StatusCode::BAD_GATEWAY,
         };
         (status, Json(error_reponse)).into_response()
     }

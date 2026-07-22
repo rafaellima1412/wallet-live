@@ -3,6 +3,7 @@ mod app;
 mod auth;
 pub mod error;
 mod model;
+pub mod quote;
 pub mod repository;
 pub mod router;
 #[tokio::main]

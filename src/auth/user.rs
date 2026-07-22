@@ -107,3 +107,95 @@ impl From<User> for UserClaims {
         Self { id, username }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use sqlx::PgPool;
+
+    #[sqlx::test]
+    async fn register_creates_a_new_user(pool: PgPool) -> sqlx::Result<()> {
+        let repository = Repository::new(pool);
+        let unauthenticated =
+            UnauthenticatedUser::new("maria".to_string(), "senha-forte".to_string());
+
+        let user = unauthenticated
+            .register(&repository)
+            .await
+            .expect("deveria registrar com sucesso");
+
+        assert_eq!(user.username(), "maria");
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn register_fails_for_duplicate_username(pool: PgPool) -> sqlx::Result<()> {
+        let repository = Repository::new(pool);
+        UnauthenticatedUser::new("duplicado".to_string(), "senha-1".to_string())
+            .register(&repository)
+            .await
+            .expect("primeiro registro deveria funcionar");
+
+        let result = UnauthenticatedUser::new("duplicado".to_string(), "senha-2".to_string())
+            .register(&repository)
+            .await;
+
+        assert!(matches!(result, Err(AppError::UserNameToken)));
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn authenticate_succeeds_with_correct_password(pool: PgPool) -> sqlx::Result<()> {
+        let repository = Repository::new(pool);
+        UnauthenticatedUser::new("joao".to_string(), "12345678".to_string())
+            .register(&repository)
+            .await
+            .expect("deveria registrar com sucesso");
+
+        let user = UnauthenticatedUser::new("joao".to_string(), "12345678".to_string())
+            .authenticate(&repository)
+            .await
+            .expect("deveria autenticar com sucesso");
+
+        assert_eq!(user.username(), "joao");
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn authenticate_fails_with_wrong_password(pool: PgPool) -> sqlx::Result<()> {
+        let repository = Repository::new(pool);
+        UnauthenticatedUser::new("pedro".to_string(), "senha-correta".to_string())
+            .register(&repository)
+            .await
+            .expect("deveria registrar com sucesso");
+
+        let result = UnauthenticatedUser::new("pedro".to_string(), "senha-errada".to_string())
+            .authenticate(&repository)
+            .await;
+
+        assert!(matches!(result, Err(AppError::InvalidCredentials)));
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn authenticate_fails_when_user_does_not_exist(pool: PgPool) -> sqlx::Result<()> {
+        let repository = Repository::new(pool);
+
+        let result = UnauthenticatedUser::new("fantasma".to_string(), "qualquer-coisa".to_string())
+            .authenticate(&repository)
+            .await;
+
+        assert!(matches!(result, Err(AppError::UserDoesNotExist)));
+        Ok(())
+    }
+
+    #[test]
+    fn jwt_round_trip_preserves_user_data() {
+        let user = User::new(42, "carla".to_string());
+        let token = user.auth_token().expect("deveria gerar o token");
+
+        let restored = User::from_auth_token(&token).expect("deveria decodificar o token");
+        assert_eq!(restored.id(), 42);
+        assert_eq!(restored.username(), "carla");
+    }
+}
