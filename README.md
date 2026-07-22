@@ -115,3 +115,17 @@ templates/         # templates Askama
 - A chave do JWT (`SECRET_KEY`) ainda está fixa no código-fonte e deve migrar para uma variável de ambiente.
 - O cookie de autenticação ainda não está assinado nem marcado como `Secure`.
 - Os testes permanecem próximos aos módulos (`#[cfg(test)]`). Como a aplicação atualmente é um único binário, separar testes unitários e de integração em uma estrutura mais elaborada ainda não traz benefícios significativos. Caso o projeto evolua para múltiplos serviços ou crates, a estratégia de testes será reorganizada para refletir essa separação.
+
+## Cadastro de ativos
+
+- Atualmente, o cadastro de novos ativos está disponível apenas pela API REST (POST /api/assets), destinada a operações administrativas.
+
+- A interface web permite registrar compras e atualizar cotações, mas ainda não possui um formulário para criação de novos ativos. A inclusão desse formulário no frontend está prevista para versões futuras
+
+## API REST — Cadastro e gerenciamento de ativos
+
+O cadastro de ativos está disponível apenas pela API REST. Abaixo estão os principais endpoints relacionados:
+```
+GET /swagger-ui
+GET /api-docs/openapi.json
+```

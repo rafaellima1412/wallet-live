@@ -20,3 +20,5 @@ tracing = "0.1.44"
 tracing-subscriber = "0.3.23"
 time = { version = "0.3", features = ["local-offset", "formatting", "parsing", "serde"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+utoipa = { version = "5", features = ["axum_extras"] }
+utoipa-swagger-ui = { version = "9", features = ["axum"] }

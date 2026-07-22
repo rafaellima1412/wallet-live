@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 use sqlx::types::Json;
 use time::OffsetDateTime;
+use utoipa::ToSchema;
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, ToSchema)]
 pub struct Asset {
     pub id: i64,
     pub name: String,

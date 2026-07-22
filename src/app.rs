@@ -10,7 +10,19 @@ use tracing::info;
 use tracing_subscriber::{
     Layer, fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt,
 };
+use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
 
+#[derive(OpenApi)]
+#[openapi(
+    paths(
+        crate::router::api::list_assets,
+        crate::router::api::create_assets,
+        crate::router::api::update_asset,
+    ),
+    components(schemas(crate::router::api::CreateAssetRequest, crate::model::Asset,))
+)]
+pub struct ApiDoc;
 // #[derive(Clone)]
 // pub struct AppConfig {
 //     pub admin_secret_key: String,
@@ -55,6 +67,7 @@ impl App {
         let router = Router::new()
             .nest("/api", api::router())
             .merge(router::frontend::router())
+            .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
             .with_state(state);
 
         info!("start service");
