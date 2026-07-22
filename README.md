@@ -110,7 +110,8 @@ migrations/        # migrations do SQLx
 templates/         # templates Askama
 ```
 
-## Segurança / próximos passos conhecidos
+## Limitações atuais / próximos passos
 
-- A chave secreta `ADMIN_SECRET_KEY` do JWT migrou para variável de ambiente.
-- O cookie de autenticação ainda não está assinado nem marcado como `secure`.
+- A chave do JWT (`SECRET_KEY`) ainda está fixa no código-fonte e deve migrar para uma variável de ambiente.
+- O cookie de autenticação ainda não está assinado nem marcado como `Secure`.
+- Os testes permanecem próximos aos módulos (`#[cfg(test)]`). Como a aplicação atualmente é um único binário, separar testes unitários e de integração em uma estrutura mais elaborada ainda não traz benefícios significativos. Caso o projeto evolua para múltiplos serviços ou crates, a estratégia de testes será reorganizada para refletir essa separação.
